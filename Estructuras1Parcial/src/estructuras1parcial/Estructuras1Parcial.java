@@ -7,6 +7,7 @@ package estructuras1parcial;
 
 import estructuras1parcial.TDALinkedList.LinkedList;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 /**
@@ -38,10 +39,35 @@ public class Estructuras1Parcial {
 
     }
 
-    public void eliminarEnesimoMasGrande(int numero) {
+    public static PriorityQueue<Integer> eliminarEnesimoMasGrande(PriorityQueue<Integer> queue, int n) {
+        int size = queue.size();
+        PriorityQueue<Integer> newQueue = new PriorityQueue<>((a, b) -> b - a);
+        Integer tmp = null;
+        for (int i = 0; i < size; i++) {
+            if (i + 1 == n) {
+                tmp = queue.poll();
+            }
+            Integer b = queue.poll();
+            if (b != null) {
+                newQueue.offer(b);
+            }
+        }
+        if (tmp != null) {
+            newQueue = validacion(newQueue, tmp);
+        }
+        return newQueue;
+    }
 
-        Queue<T> cola = new PriorityQueue<>();
-
+    public static PriorityQueue<Integer> validacion(PriorityQueue<Integer> queue, int number) {
+        int size = queue.size();
+        PriorityQueue<Integer> newQueue1 = new PriorityQueue<>((a, b) -> b - a);
+        for (int i = 0; i < size; i++) {
+            Integer b = queue.poll();
+            if (b != number) {
+                newQueue1.offer(b);
+            }
+        }
+        return newQueue1;
     }
 
 }

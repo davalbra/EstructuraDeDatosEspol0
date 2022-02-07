@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package estructuras1parcial.TDALinkedList;
+package estructuras1parcial.DoubleLinkedList;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,51 +15,52 @@ import java.util.Set;
  *
  * @author david
  */
-public class LinkedList<E> {
+public class DoubleLinkedList<E> {
 
-    private Nodo<E> head;
-    private Nodo<E> last;
+    private DoubleNodo<E> last;
 
     public boolean addFirst(E contenido) {
-        Nodo<E> nuevo = new Nodo<>(contenido);
+        DoubleNodo<E> nuevo = new DoubleNodo<>(contenido);
         if (isEmpty()) {
-            head = nuevo;
             last = nuevo;
             return true;
         }
-
-        nuevo.setNext(head);
-        head = nuevo;
+        last.getNext().setPrevious(nuevo);
+        nuevo.setNext(last.getNext());
+        nuevo.setPrevious(last);
+        last.setNext(nuevo);
         return true;
     }
 
     public boolean addLast(E contenido) {
-        Nodo<E> nuevo = new Nodo<>(contenido);
+        DoubleNodo<E> nuevo = new DoubleNodo<>(contenido);
         if (isEmpty()) {
-            head = nuevo;
-            last = nuevo;
+            addFirst(contenido);
             return true;
         }
 
-        last.setNext(nuevo);
+        last.getPrevious().setNext(nuevo);
+        nuevo.setNext(last);
+        nuevo.setPrevious(last.getPrevious());
+        last.setPrevious(nuevo);
         last = nuevo;
         return true;
     }
 
     public boolean isEmpty() {
-        return head == null;
+        return last == null;
     }
 
     public int size() {
-        int contador = 0;
-        for (Nodo<E> n = head; n != null; n = n.getNext()) {
+        int contador = 1;
+        for (DoubleNodo<E> n = last; n != n.getPrevious(); n = n.getNext()) {
             contador++;
         }
         return contador;
     }
 
     public boolean add(int index, E contenido) {
-        Nodo<E> nodo = new Nodo<>(contenido);
+        DoubleNodo<E> nodo = new DoubleNodo<>(contenido);
         if (index > this.size()) {
             return false;
         }
@@ -72,10 +73,12 @@ public class LinkedList<E> {
             addLast(contenido);
         }
         int tmp = 0;
-        for (Nodo<E> n = head; tmp < index - 1; n = n.getNext()) {
+        for (DoubleNodo<E> n = last.getNext(); tmp < index - 1; n = n.getNext()) {
             if (tmp == index - 1) {
+                n.getNext().setPrevious(nodo);
                 n.setNext(nodo);
                 nodo.setNext(n.getNext());
+                nodo.setPrevious(n);
             }
             tmp++;
         }
@@ -93,8 +96,9 @@ public class LinkedList<E> {
             removeLast();
         }
         int tmp = 0;
-        for (Nodo<E> n = head; tmp < index - 1; n = n.getNext()) {
+        for (DoubleNodo<E> n = last.getNext(); tmp < index - 1; n = n.getNext()) {
             if (tmp == index - 1) {
+                n.getNext().getNext().setPrevious(n);
                 n.setNext(n.getNext().getNext());
                 return true;
             }
@@ -104,18 +108,18 @@ public class LinkedList<E> {
 
     public boolean removeFirst() {
         if (size() == 1) {
-            head = null;
             last = null;
             return true;
         }
-        head = head.getNext();
+        last.getNext().getNext().setPrevious(last);
+        last.setNext(last.getNext().getNext());
         return true;
     }
 
     public boolean removeLast() {
         int tmp = 0;
         int index = size();
-        for (Nodo<E> n = head; tmp < index - 1; n = n.getNext()) {
+        for (DoubleNodo<E> n = last.getNext(); tmp < index - 1; n = n.getNext()) {
             if (tmp == index - 1) {
                 n.setNext(null);
                 last = n;
@@ -126,7 +130,7 @@ public class LinkedList<E> {
     }
 
     public E get0() {
-        return head.getContenido();
+        return last.getNext().getContenido();
     }
 
     public E getN() {
@@ -138,7 +142,7 @@ public class LinkedList<E> {
             return null;
         }
         int tmp = 0;
-        for (Nodo<E> n = head; tmp < index; n = n.getNext()) {
+        for (DoubleNodo<E> n = last.getNext(); tmp < index; n = n.getNext()) {
             if (tmp == index) {
                 return n.getContenido();
             }
@@ -146,46 +150,8 @@ public class LinkedList<E> {
         return null;
     }
 
-    //tema de Examen
-    public Map<LinkedList<E>, Integer> contarDistintosEnSublistas(int k) {
-        Map<LinkedList<E>, Integer> mapa = new HashMap<>();
-
-        for (Nodo<E> n = head; n != null; n = n.getNext()) {
-            if (cantidadRestante(n) >= k) {
-                LinkedList<E> revisar = contenido(k, n);
-                mapa.put(revisar, contarUnicos(revisar));
-            }
-        }
-        return mapa;
-    }
-
-    public int contarUnicos(LinkedList<E> lista) {
-        Set<E> set = new HashSet<>();
-        for (Nodo<E> n = lista.getHead(); n != null; n = n.getNext()) {
-            set.add(n.getContenido());
-        }
-        return set.size();
-    }
-
-    public LinkedList<E> contenido(int i, Nodo<E> nodo) {
-        LinkedList<E> listaReturn = new LinkedList<>();
-        for (Nodo<E> n = nodo; listaReturn.size() < i; n = n.getNext()) {
-            listaReturn.addLast(n.getContenido());
-        }
-        return listaReturn;
-    }
-
-    public int cantidadRestante(Nodo<E> nodo) {
-        int cantidad = 0;
-        for (Nodo<E> n = nodo; n != null; n = n.getNext()) {
-            cantidad++;
-        }
-        return cantidad;
-    }
-    //Fin de tema de Examen
-
     public void imprimir() {
-        for (Nodo<E> n = head; n != null; n = n.getNext()) {
+        for (DoubleNodo<E> n = last.getNext(); n != last; n = n.getNext()) {
             System.out.print(" " + n.getContenido());
         }
         System.out.println("");
@@ -193,7 +159,7 @@ public class LinkedList<E> {
 
     public Iterator<E> iterator() {
         Iterator<E> it = new Iterator<E>() {
-            Nodo<E> n = head;
+            DoubleNodo<E> n = last.getNext();
 
             @Override
             public boolean hasNext() {
@@ -208,19 +174,11 @@ public class LinkedList<E> {
         return it;
     }
 
-    public Nodo<E> getHead() {
-        return head;
-    }
-
-    public void setHead(Nodo<E> head) {
-        this.head = head;
-    }
-
-    public Nodo<E> getLast() {
+    public DoubleNodo<E> getLast() {
         return last;
     }
 
-    public void setLast(Nodo<E> last) {
+    public void setLast(DoubleNodo<E> last) {
         this.last = last;
     }
 
